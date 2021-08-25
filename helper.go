@@ -9,14 +9,21 @@ import (
 
 func bold(text string) string { return "\x1b[1m" + text + "\x1b[0m" }
 func red(text string) string { return "\x1b[31m" + text + "\x1b[0m" }
-func green(text string) string { return "\x1b[32m" + text + "\x1b[0m" }
 func blue(text string) string { return "\x1b[34m" + text + "\x1b[0m" }
 
 func equals3(a, b, c interface{}) bool {
 	return a == b && b == c
 }
 
-func inArray(array []string, value string) bool {
+func convertCoords(coords []Coord) []interface {} {
+	copy := make([]interface {}, len(coords))
+	for k, v := range coords {
+		copy[k] = v
+	}
+	return copy
+}
+
+func inArray(array []interface {}, value interface {}) bool {
 	for _, i := range array {
         if i == value {
             return true

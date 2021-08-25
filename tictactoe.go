@@ -35,9 +35,9 @@ func (t *TicTacToe) play() {
 
 	if len(move) != 2 {
 		fmt.Println(red("Expected a row and a column, eg. a1 or b3"))
-	} else if !inArray([]string { "a", "b", "c" }, string(move[0])) {
+	} else if !inArray([]interface{} { "a", "b", "c" }, string(move[0])) {
 		fmt.Println(red("Row must be [a/b/c]"))
-	} else if !inArray([]string { "1", "2", "3" }, string(move[1])) {
+	} else if !inArray([]interface{} { "1", "2", "3" }, string(move[1])) {
 		fmt.Println(red("Column must be [1/2/3]"))
 	} else {
 		y := indexOf([]string { "a", "b", "c" }, string(move[0]))
@@ -50,62 +50,100 @@ func (t *TicTacToe) play() {
 			t.p1turn = !t.p1turn
 
 			fmt.Println("")
-			t.display()
 
 			res := t.checkGameover()
-			if res != "" {
+			if res.winner != "" {
 				t.gameover = true
 
-				fmt.Println("")
-				if res == "tie" {
+				if res.winner == "tie" {
 					fmt.Println(bold("The game was a tie!"))
-				} else if res == "X" {
-					fmt.Println(bold(green("You win!")))
+				} else if res.winner == "X" {
+					fmt.Println(bold("\x1b[32mYou win!\x1b[0m"))
 				} else {
 					fmt.Println(bold(red("You lose!")))
 				}
-			}
+
+				t.display(res.coords, false)
+			} else { t.display([]Coord {}, true) }
 		}
 	}
 }
 
-func (t TicTacToe) display() {
-	rows := []string {}
+func (t TicTacToe) display(highlighting []Coord, markings bool) {
+	output := "   1   2   3\n"
+	array := []string { "a", "b", "c" }
+	spacing := "  "
 
-	for i := range t.board {
-		rows = append(rows, " " + strings.Join(t.board[i][:], " | "))
+	if !markings {
+		output = ""
+		array = []string { " ", " ", " " }
+		spacing = ""
 	}
 
-	fmt.Println(blue(strings.Join(rows, "\n---|---|---\n")))
+	for i := range t.board {
+		output += array[i] + spacing
+
+		for j := range t.board[i] {
+			if (inArray(convertCoords(highlighting), Coord { j, i })) {
+				output += "\x1b[32m" + t.board[i][j] + "\x1b[34m"
+			} else { output += t.board[i][j] }
+			
+			if j < 2 { output += " | " }
+		}
+
+		output += "\n"
+		if i < 2 { output += spacing + "---|---|---\n" }
+	}
+
+	fmt.Println(blue(output))
 }
 
-func (t TicTacToe) checkGameover() string {
-	winner := ""
+func (t TicTacToe) checkGameover() OutputRes {
 	emptyspaces := 0
 
 	for i := 0; i < 3; i++ {
 		if equals3(t.board[i][0], t.board[i][1], t.board[i][2]) && t.board[i][0] != " " {
-			return t.board[i][0]
+			return OutputRes {
+				winner: t.board[i][0],
+				coords: []Coord { { x: 0, y: i, }, { x: 1, y: i, }, { x: 2, y: i, } },
+			}
 		}
+
 		if equals3(t.board[0][i], t.board[1][i], t.board[2][i]) && t.board[0][i] != " " {
-			return t.board[0][i]
+			return OutputRes {
+				winner: t.board[0][i],
+				coords: []Coord { { x: i, y: 0, }, { x: i, y: 1, }, { x: i, y: 2, } },
+			}
 		}
 
 		for j := 0; j < 3; j++ {
-			if t.board[i][j] == " " {
-				emptyspaces++
-			}
+			if t.board[i][j] == " " { emptyspaces++ }
 		}
 	}
 
-	if emptyspaces == 0 { return "tie" }
+	if emptyspaces == 0 {
+		return OutputRes {
+			winner: "tie",
+			coords: []Coord {},
+		}
+	}
 
 	if equals3(t.board[0][0], t.board[1][1], t.board[2][2]) && t.board[0][0] != " " {
-		return t.board[0][0]
+		return OutputRes {
+			winner: t.board[0][0],
+			coords: []Coord { { x: 0, y: 0, }, { x: 1, y: 1, }, { x: 2, y: 2, } },
+		}
 	}
+
 	if equals3(t.board[2][0], t.board[1][1], t.board[0][2]) && t.board[2][0] != " " {
-		return t.board[2][0]
+		return OutputRes {
+			winner: t.board[2][0],
+			coords: []Coord { { x: 0, y: 2, }, { x: 1, y: 1, }, { x: 2, y: 0, } },
+		}
 	}	
 
-	return winner
+	return OutputRes {
+		winner: "",
+		coords: []Coord {},
+	}
 }

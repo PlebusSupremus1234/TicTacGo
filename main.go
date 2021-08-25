@@ -16,7 +16,7 @@ func main() {
 	fmt.Println("You can enter a row [a/b/c] and a column [1/2/3] to specify the position of your marker, eg. a1 or b3")
 	fmt.Println("")
 
-	game.display()
+	game.display([]Coord {}, true)
 
 	for !game.gameover { game.play() }
 }
