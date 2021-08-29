@@ -51,6 +51,7 @@ func minimax(t *TicTacToe, isMax bool) float64 {
 				}
 			}
 		}
+
 		return bestScore
 	} else {
 		bestScore := math.Inf(1)
@@ -65,6 +66,7 @@ func minimax(t *TicTacToe, isMax bool) float64 {
 				}
 			}
 		}
+		
 		return bestScore
 	}
 }
