@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	fmt.Println("")
+	fmt.Println("Your mum")
 
 	opponent := getOpponent()
 	game := newGame(opponent)
